@@ -1,0 +1,948 @@
+let mostrarAjuda = false;
+
+let escada = {
+  x: 750,
+  y: 460,
+  nome: "🪜",
+  coletado: false
+};
+
+let balde = {
+  x: 400,
+  y: 120,
+  nome: "🪣",
+  coletado: false
+};
+
+let vaca = {
+  x: 600,
+  y: 400,
+  nome: "Vaca"
+};
+
+let copoDeLeite = { nome: "🥛", coletado: false };
+let planta = { nome: "🌱", coletado: false };
+
+// 🐮 fala da vaca
+let mostrarFalaVaca = false;
+let textoFalaVaca = "MUUUU";
+
+// 👩‍🌾 fala da fazendeira
+let mostrarFalaFazendeira = false;
+let mostrarFalaFazendeiraAgradecida = false;
+let textoFalaFazendeiraAgradecida = "Obrigada! Aqui está uma muda pra você plantar.";
+
+// 🚪 fala da porta (quando tenta pegar o balde sem escada)
+let mostrarFalaPorta = false;
+let textoFalaPorta = "";
+
+let plantaPlantada = false;
+let posicaoPoca = { x: 600, y: 440 }; // ajuste esse x e y se sua poça estiver em outro lugar
+
+let pocaX = 125;
+let pocaY = 475;
+
+let chave = { nome: "🔑", coletado: false };
+
+let chaveDourada = { nome: "🔑", coletado: false };
+
+let arvores = [ 
+  { x: 200, y: 390, queimando: true },
+  { x: 300, y: 390, queimando: true },
+  { x: 400, y: 390, queimando: true },
+  { x: 500, y: 390, queimando: true },
+  { x: 600, y: 390, queimando: true },
+];
+
+let bombeiroX = 100; 
+let bombeiroY = 390; 
+let velocidadeBombeiro = 40;
+
+let helicopteroX = 400; 
+let helicopteroY = 90; 
+let helicopteroTremerIntensidade = 3;
+let helicopteroTamanho = 90; 
+
+let posicaoCortinaEsquerda = 400;
+let posicaoCortinaDireita = 400;  
+let velocidadeCortina = 5; 
+
+let rainhaX = 400; 
+let rainhaY = 290; 
+let cortinasAbertas = false; 
+
+let falas = [
+  "Boa noite, queridos súditos!\nO Jornal Real começa agora.",
+  "Notícias urgentes:\nQueimadas atingiram a zona rural,\nmas os bombeiros já controlaram o fogo.",
+  "Essas queimadas danificaram mais de 60% das \nplantações de trigo na região sudeste do país.",
+  "Observem as gravações realizadas no momento \nque o incêndio foi apagado."
+];
+
+let falaAgora = 0; 
+let falaDepoisGravacao = "Graças à bravura dos nossos bombeiros,\nconseguimos conter o incêndio a tempo."; 
+let mostrarFalaIncendio = false; 
+let cenaAtual = 0; 
+
+let tempoNinjas = 0;
+let mostrarNinjas = false;
+let tempoSemNinjas = false;
+let ninjaFalando = false;
+let cortinaFechando = false;
+let rainhaSequestrada = false;
+
+let mudarParaCeleiro = false;
+let cortinaReabrindo = false;
+
+// 👑 movimento da rainha no celeiro
+let rainhaFazendaX = 400;
+let rainhaFazendaY = 400;
+let velocidadeRainha = 20;
+
+// 🎒 inventário (mochila)
+let mochila = [];
+
+
+function setup() {
+  createCanvas(800, 500);
+  textFont('Arial'); 
+}
+
+
+function setup() {
+  createCanvas(800, 500);
+  textFont('Arial'); 
+}
+
+function draw() {
+  if (cenaAtual === 0) {
+    drawStage();     
+
+    if (!mostrarNinjas && !tempoSemNinjas && !ninjaFalando && !rainhaSequestrada) {
+      drawRainha(); 
+    } else if (mostrarNinjas) {
+      drawRainhaComNinjas();
+    } else if (ninjaFalando) {
+      drawNinjaFalando();
+    }
+
+    drawCortinas();
+
+    if (!cortinasAbertas) { 
+      posicaoCortinaEsquerda -= velocidadeCortina; 
+      posicaoCortinaDireita += velocidadeCortina; 
+      if (posicaoCortinaEsquerda <= 0 && posicaoCortinaDireita >= width) {
+        cortinasAbertas = true; 
+      }
+    }
+
+    if (cortinasAbertas && !mostrarNinjas && !tempoSemNinjas && !ninjaFalando && !rainhaSequestrada) {
+      if (mostrarFalaIncendio) {
+        drawBalaoFala(falaDepoisGravacao); 
+      } else if (falaAgora < falas.length) {
+        drawFalaRainha(); 
+      }
+    }
+
+    if (mostrarNinjas && millis() - tempoNinjas > 2000) {
+      mostrarNinjas = false;
+      tempoSemNinjas = true;
+      tempoNinjas = millis();
+      rainhaSequestrada = true;
+    }
+
+    if (tempoSemNinjas && millis() - tempoNinjas > 2000) {
+      tempoSemNinjas = false;
+      ninjaFalando = true;
+      tempoNinjas = millis();
+    }
+
+    if (ninjaFalando && millis() - tempoNinjas > 3000) {
+      cortinaFechando = true;
+      ninjaFalando = false;
+    }
+
+    if (cortinaFechando) {
+      posicaoCortinaEsquerda += velocidadeCortina;
+      posicaoCortinaDireita -= velocidadeCortina;
+      if (posicaoCortinaEsquerda >= 400 && posicaoCortinaDireita <= 400) {
+        cortinaFechando = false;
+        mudarParaCeleiro = true;
+        posicaoCortinaEsquerda = 400;
+        posicaoCortinaDireita = 400;
+      }
+    }
+
+  } else if (cenaAtual === 1) {
+    drawJogoBombeiro();
+    let todosApagados = arvores.every(arvore => !arvore.queimando); 
+    if (todosApagados) {
+      cenaAtual = 0; 
+      falaAgora = 0;
+      mostrarFalaIncendio = true;
+    }
+
+  } else if (cenaAtual === 2) {
+    drawCenaCeleiro();
+    drawMochila(); // ✨ chama a função que desenha a mochila
+
+   
+    // Fala da porta
+    if (mostrarFalaPorta) {
+      fill(255);
+      rect(200, 200, 500, 70, 15);
+      fill(0);
+      textAlign(CENTER, CENTER);
+      textSize(22);
+      text(textoFalaPorta, 450, 235);
+    }
+
+    // Fala da fazendeira agradecida
+    if (mostrarFalaFazendeiraAgradecida) {
+      fill(255);
+      rect(100, 295, 450, 40, 10);
+      fill(0);
+      textAlign(CENTER, CENTER);
+      text(textoFalaFazendeiraAgradecida, 330, 320);
+    }
+
+    // Fala da fazendeira pedindo leite
+    if (mostrarFalaFazendeira) {
+      fill(255);
+      rect(180, 300, 300, 40, 10);
+      fill(0);
+      textAlign(CENTER, CENTER);
+      text("Me traga um copo de leite e te darei algo em troca.", 330, 320);
+    }
+
+    // Fala da vaca
+    if (mostrarFalaVaca) {
+      fill(255);
+      rect(vaca.x - 40, vaca.y - 90, 120, 40, 10);
+      fill(0);
+      textAlign(CENTER, CENTER);
+      text(textoFalaVaca, vaca.x + 20, vaca.y - 70);
+    }
+  }
+
+  // Transição do sequestro para o celeiro
+  if (mudarParaCeleiro) {
+    drawCenaCeleiro();
+    drawCortinas();
+    posicaoCortinaEsquerda -= velocidadeCortina;
+    posicaoCortinaDireita += velocidadeCortina;
+    if (posicaoCortinaEsquerda <= 0 && posicaoCortinaDireita >= width) {
+      cortinasAbertas = true;
+      mudarParaCeleiro = false;
+      cenaAtual = 2;
+    }
+  }
+    else if (cenaAtual === 3) {
+    drawCenaSaw(); // nova cena preta
+    if (!iniciouDesafio) {
+      drawCenaSaw(); // A primeira tela preta com "Você tem 20 segundos..."
+    } else if (telaEscolhaFazenda) {
+      drawCenaEscolhaFazenda(); // Nova cena depois de apertar espaço
+    }
+  }
+  function draw() {
+  background(220);
+
+  if (cenaAtual === 0) {
+    drawCenaPalco(); // ou o que for a cena do palco
+  } else if (cenaAtual === 1) {
+    drawCenaIncendio(); // cena dos bombeiros
+  } else if (cenaAtual === 2) {
+    drawCenaFazenda();
+  } else if (cenaAtual === 3) {
+    drawCenaSaw(); // 💥 CHAMADA DA CENA 3 COM A CONTAGEM
+  }
+
+  if (telaEscolhaFazenda) {
+    drawCenaEscolhaFazenda();
+  }
+}
+
+
+}
+
+function drawRainhaComNinjas() {
+  textSize(150);
+  textAlign(CENTER, CENTER);
+  text("🥷🏻👸🏼🥷🏻", rainhaX, rainhaY);
+}
+
+function drawNinjaFalando() {
+  textSize(150);
+  textAlign(CENTER, CENTER);
+  text("🥷🏻", rainhaX, rainhaY);
+  drawBalaoFala("Boa noite, queridos súditos.", false);
+}
+
+function drawCenaCeleiro() {
+  background("rgb(82,43,15)");
+  stroke(0);
+  strokeWeight(1);
+
+  // Laterais do celeiro
+  fill("rgb(94,40,23)");
+  quad(200, 100, 200, 400, 0, 600, 0, 0);     
+  quad(600, 100, 600, 400, 800, 600, 800, 0);
+
+  // Parede central
+  fill(120, 60, 40);
+  rect(200, 100, 400, 300);
+
+  // Telhado
+  line(0, 0, 200, 100);
+  line(800, 0, 600, 100);
+
+  // Chão de feno
+  fill("#9A661A");
+  quad(0, 500, 800, 500, 600, 400, 200, 400);
+  line(0, 500, 200, 400);
+  line(800, 500, 600, 400);
+
+  // Porta 🚪
+  textSize(150);
+  textAlign(CENTER, TOP);
+  text("🚪", 400, 260);
+
+  // Cerca
+  fill(140, 100, 50);
+  rect(280, 180, 240, 20);
+  rect(280, 180, 10, 80);
+  rect(510, 180, 10, 80);
+
+  // Janelas
+  for (let i = 0; i < 5; i++) {
+    fill(255, 210, 50);
+    rect(290 + i * 45, 140, 40, 40);
+    stroke(0);
+    line(290 + i * 45 + 5, 150, 290 + i * 45 + 35, 150);
+    line(290 + i * 45 + 5, 160, 290 + i * 45 + 35, 160);
+  }
+
+  // Poça de lama
+  let pocaX = 125;
+  let pocaY = 475;
+  stroke(0);
+  strokeWeight(2);
+  fill(80, 50, 20);
+  ellipse(pocaX, pocaY, 60, 20);
+
+  // Fazendeira
+  textAlign(CENTER, CENTER);
+  textSize(80);
+  text("👩🏼‍🌾", 240, 365);  
+
+  // Fala da fazendeira
+  if (mostrarFalaFazendeira) {
+    fill(255);
+    stroke(0);
+    strokeWeight(2);
+    rect(180, 270, 220, 80, 10);
+    fill(0);
+    noStroke();
+    textSize(17);
+    text("Me traga um copo de leite \ne te darei algo em troca.", 290, 310);
+  }
+
+  // Fala da porta
+  if (mostrarFalaPorta) {
+    fill(255);
+    stroke(0);
+    strokeWeight(2);
+    rect(rainhaFazendaX - 160, rainhaFazendaY - 100, 320, 60, 10);
+    fill(0);
+    noStroke();
+    textSize(14);
+    text(textoFalaPorta, rainhaFazendaX, rainhaFazendaY - 70);
+  }
+
+  // Vaca
+  textSize(140);
+  text("🐄", 550, 350);
+
+  // 🌱 Planta (embaixo da rainha)
+  if (plantaPlantada) {
+    textSize(30);
+    text("🌱", pocaX, pocaY - 15);
+  }
+
+  // 👸🏼 Rainha (por cima da planta)
+  textSize(90);
+  text("👸🏼", rainhaFazendaX, rainhaFazendaY);
+
+  // Balde
+  if (!balde.coletado) {
+    textSize(40);
+    text(balde.nome, balde.x, balde.y);
+  }
+
+  // Escada
+  if (!escada.coletado) {
+    textSize(50);
+    text("🪜", escada.x, escada.y);
+  }
+
+  // Botão de ajuda (?)
+  fill(255);
+  stroke(0);
+  strokeWeight(2);
+  ellipse(width - 30, 30, 30);
+  fill(0);
+  noStroke();
+  textSize(20);
+  text("?", width - 30, 30);
+
+  // Caixa de ajuda aberta
+  if (mostrarAjuda) {
+    fill(255);
+    stroke(0);
+    strokeWeight(3);
+    rect(100, 80, 600, 340, 20);
+    fill(0);
+    noStroke();
+    textSize(20);
+    textAlign(CENTER, TOP);
+    text("👑 INSTRUÇÕES 👑\n\nUse as teclas W, A, S e D para se mover pelo celeiro.\n\nAperte E para interagir com os objetos. Esses objetos \nestarão na mochila e poderão ser usados para escapar. \n\nClique no '?' novamente para voltar ao jogo.", 400, 100);
+  }
+}
+
+
+function drawJogoBombeiro() {
+  background("rgb(134,202,229)");  
+  drawHelicoptero(); 
+  fill("#3e7327"); 
+  rect(0, 400, width, 100); 
+
+  textSize(60); 
+  textAlign(CENTER, CENTER); 
+  push(); 
+  translate(bombeiroX, bombeiroY); 
+  scale(-1, 1);  
+  text("🚒", 0, 0); 
+  pop(); 
+
+  for (let arvore of arvores) { 
+    textSize(50); 
+    textAlign(CENTER, CENTER); 
+    if (arvore.queimando) { 
+      text("🌳🔥", arvore.x, arvore.y); 
+    } else {
+      text("🌳", arvore.x, arvore.y); 
+    }
+
+    let d = dist(bombeiroX, bombeiroY, arvore.x, arvore.y); 
+    if (d < 60 && arvore.queimando) { 
+      arvore.queimando = false; 
+    }
+  }
+
+  fill(255); 
+  textSize(14); 
+  textAlign(RIGHT, BOTTOM); 
+  text("(Pressione → para conter o incêndio)", width - 10, height - 10); 
+}
+
+function drawHelicoptero() {
+  let tremorX = random(-helicopteroTremerIntensidade, helicopteroTremerIntensidade); 
+  let tremorY = random(-helicopteroTremerIntensidade, helicopteroTremerIntensidade); 
+
+  push(); 
+  translate(helicopteroX + tremorX, helicopteroY + tremorY); 
+  scale(-1, 1); 
+  textSize(helicopteroTamanho); 
+  textAlign(CENTER, CENTER); 
+  text("🚁", 0, 0); 
+  pop(); 
+}
+
+function drawStage() {
+  fill("rgb(37,37,204)");
+  rect(0, 0, width, height);
+
+  noStroke(); 
+  fill(255, 255, 255, 80); 
+  ellipse(width / 2, 100, 500, 250); 
+  fill(255, 255, 255, 50); 
+  ellipse(200, 150, 400, 200); 
+  ellipse(600, 150, 400, 200); 
+
+  fill("#91543E");
+  rect(0, 350, width, 150);
+}
+
+function drawRainha() {
+  textSize(150); 
+  textAlign(CENTER, CENTER); 
+  fill(0); 
+  text("👸🏼", rainhaX, rainhaY); 
+}
+
+function drawCortinas() {
+  fill("rgb(121,4,4)"); 
+  noStroke(); 
+  rect(0, 0, posicaoCortinaEsquerda, height); 
+  rect(posicaoCortinaDireita, 0, width - posicaoCortinaDireita, height); 
+}
+
+function drawFalaRainha() {
+  let fala = falas[falaAgora]; 
+  drawBalaoFala(fala, true); 
+}
+
+function drawBalaoFala(texto, mostrarInstrucao = true) {
+  fill(255); 
+  stroke(0); 
+  strokeWeight(2); 
+  rect(rainhaX - 240, rainhaY - 220, 480, 110, 10); 
+
+  noStroke(); 
+  fill(0); 
+  textSize(16); 
+  textAlign(CENTER, CENTER); 
+  text(texto, rainhaX, rainhaY - 170); 
+
+  if (mostrarInstrucao) {
+    fill(255); 
+    noStroke(); 
+    textSize(14); 
+    textAlign(RIGHT, BOTTOM); 
+    text("(Pressione A para continuar)", width - 10, height - 10); 
+  }
+}
+
+function drawMochila() {
+  fill("white"); 
+  textSize(18); 
+  textAlign(LEFT, TOP); 
+  text("Mochila:", 18, 10); 
+
+  for (let i = 0; i < mochila.length; i++) {
+    text(mochila[i], 10, 35 + i * 20);
+  }
+}
+
+function keyPressed() {
+  // Cena do palco (fala + transição pros bombeiros)
+  if ((key === 'a' || key === 'A') && cenaAtual === 0) {
+    if (mostrarFalaIncendio) {
+      mostrarFalaIncendio = false;
+      mostrarNinjas = true;
+      tempoNinjas = millis();
+    } else if (falaAgora < falas.length - 1) {
+      falaAgora++; 
+    } else {
+      cenaAtual = 1; 
+    }
+  }
+
+  // Movimento do bombeiro na cena 1
+  if (cenaAtual === 1 && keyCode === RIGHT_ARROW) {
+    bombeiroX += velocidadeBombeiro; 
+  }
+
+  // Cena da fazenda
+  if (cenaAtual === 2) {
+    // Movimento da rainha
+    if (key === 'a' || key === 'A') {
+      rainhaFazendaX -= velocidadeRainha;
+    } else if (key === 'd' || key === 'D') {
+      rainhaFazendaX += velocidadeRainha;
+    } else if (key === 'w' || key === 'W') {
+      rainhaFazendaY -= velocidadeRainha;
+    } else if (key === 's' || key === 'S') {
+      rainhaFazendaY += velocidadeRainha;
+    }
+
+    // Limita posição da rainha
+    rainhaFazendaX = constrain(rainhaFazendaX, 0, width);
+    rainhaFazendaY = constrain(rainhaFazendaY, 360, height - 50);
+
+    // Interações com tecla E
+    if (key === 'e' || key === 'E') {
+      let dEscada = dist(rainhaFazendaX, rainhaFazendaY, escada.x, escada.y);
+      let dPorta = dist(rainhaFazendaX, rainhaFazendaY, 400, 290);
+      let dVaca = dist(rainhaFazendaX, rainhaFazendaY, vaca.x, vaca.y);
+      let dFazendeira = dist(rainhaFazendaX, rainhaFazendaY, 240, 365); 
+      let dPoca = dist(rainhaFazendaX, rainhaFazendaY, pocaX, pocaY); 
+
+      let temEscada = mochila.includes(escada.nome);
+      let temBalde = mochila.includes(balde.nome);
+      let temLeite = mochila.includes(copoDeLeite.nome);
+      let temMuda = mochila.includes(planta.nome);
+
+      if (dEscada < 60 && !escada.coletado) {
+        mochila.push(escada.nome);
+        escada.coletado = true;
+      }
+
+      if (dPorta < 80 && !balde.coletado) {
+        if (temEscada) {
+          mochila = mochila.filter(item => item !== escada.nome);
+          balde.coletado = true;
+          mochila.push(balde.nome);
+        } else {
+          textoFalaPorta = "Tá muito alto... Eu deveria pegar algo pra alcançar.";
+          mostrarFalaPorta = true;
+          setTimeout(() => {
+            mostrarFalaPorta = false;
+          }, 3000);
+        }
+      }
+
+      if (dVaca < 80 && temBalde && !copoDeLeite.coletado) {
+        mochila = mochila.filter(item => item !== balde.nome);
+        copoDeLeite.coletado = true;
+        mochila.push(copoDeLeite.nome);
+
+        mostrarFalaVaca = true;
+        setTimeout(() => {
+          mostrarFalaVaca = false;
+        }, 2000);
+      }
+
+      if (dFazendeira < 80) {
+        if (temLeite && !planta.coletado) {
+          mochila = mochila.filter(item => item !== copoDeLeite.nome);
+          copoDeLeite.coletado = false;
+
+          planta.coletado = true;
+          mochila.push(planta.nome);
+
+          mostrarFalaFazendeiraAgradecida = true;
+          setTimeout(() => {
+            mostrarFalaFazendeiraAgradecida = false;
+          }, 3000);
+        } else if (!temLeite && !planta.coletado) {
+          mostrarFalaFazendeira = true;
+          setTimeout(() => {
+            mostrarFalaFazendeira = false;
+          }, 3000);
+        }
+      }
+
+      if (dPoca < 60 && temMuda && !plantaPlantada) {
+        mochila = mochila.filter(item => item !== planta.nome);
+        planta.coletado = false;
+        plantaPlantada = true;
+
+        chaveDourada.coletado = true;
+        mochila.push(chaveDourada.nome);
+      }
+
+      // Entrar no desafio se tiver chave
+      let d = dist(rainhaFazendaX, rainhaFazendaY, 400, 300);
+      if (d < 100 && rainhaTemChave()) {
+        cenaAtual = 3;
+      }
+    }
+  }
+
+  // Cena 3 - desafio estilo SAW
+  if (cenaAtual === 3 && !iniciouDesafio && key === ' ') {
+    iniciouDesafio = true;
+    telaEscolhaFazenda = true; // vai direto pra tela de escolha
+  }
+
+  if (telaEscolhaFazenda) {
+    if (key === 'a' || key === 'A') {
+      console.log("Voltou a dormir... será o fim?");
+    }
+    if (key === 'b' || key === 'B') {
+      console.log("Foi ver os animais... algo estranho o espera?");
+    }
+  }
+  if (cenaAtual === 3 && !iniciouContagem && key === ' ') {
+  iniciouContagem = true;
+  tempoInicioContagem = millis();
+}
+
+}
+
+function mousePressed() {
+
+  let d = dist(mouseX, mouseY, width - 30, 30);
+  if (d < 15 && cenaAtual === 2) {
+    mostrarAjuda = !mostrarAjuda;
+  }
+}
+
+
+function rainhaTemChave() {
+  return mochila.includes("🔑"); // ou o nome exato do item, se for diferente
+
+
+// codigo 2, jogo saw game
+
+let cenaAtual = 0;
+let tempoInicio;
+let tempoRestante = 15;
+let escolha1 = "";
+let escolha2 = "";
+let escolha3 = "";
+let escolha4 = "";
+let escolha5 = "";
+let escolha6 = "";
+
+function setup() {
+  createCanvas(800, 500);
+  textFont("Times New Roman");
+  textAlign(CENTER, CENTER);
+}
+
+function draw() {
+  background(0);
+  fill(255);
+
+  if (cenaAtual === 0) {
+    fill("red");
+    textSize(48);
+    text("Você tem 15 segundos...", width / 2, 100);
+    fill(255);
+    textSize(36);
+    text("Aperte A e B para sobreviver.", width / 2, height / 2);
+    fill(180);
+    textSize(24);
+    text("Pressione ESPAÇO para começar...", width / 2, height - 80);
+
+  } else if ([1, 4, 7, 10, 13, 16].includes(cenaAtual)) {
+    if (millis() - tempoInicio > 2000) {
+      tempoInicio = millis();
+      cenaAtual++;
+    }
+
+  } else if (cenaAtual === 2) {
+    faseComContagem("Você acordou em uma fazenda.", "A: Volte a dormir", "B: Vá ver os animais", escolha1);
+
+  } else if (cenaAtual === 3) {
+    mostrarResultado(escolha1, "Você ia deixar os animais sem comer?", "Eles estão morrendo de fome.");
+
+  } else if (cenaAtual === 5) {
+    faseComContagem("Você chegou no celeiro.", "A: Você dá carne para os animais", "B: Você dá feno para os animais", escolha2);
+
+  } else if (cenaAtual === 6) {
+    mostrarResultado(escolha2, "Eles morreram!", "Eles amaram o feno.");
+
+  } else if (cenaAtual === 8) {
+    faseComContagem("Você precisa comprar fertilizantes.", "A: Comprar fertilizantes caros, porém bons.", "B: Comprar fertilizantes baratos, porém ruins.", escolha3);
+
+  } else if (cenaAtual === 9) {
+    mostrarResultadoComAcorreta(escolha3, "Sua plantação vai crescer saudável.", "Sua plantação morreu!");
+
+  } else if (cenaAtual === 11) {
+    faseComContagem("Você se endividou comprando fertilizantes.", "A: Lavagem de dinheiro", "B: Pedir empréstimo", escolha4);
+
+  } else if (cenaAtual === 12) {
+    mostrarResultado(escolha4, "Você foi pra cadeia.", "Você conseguiu um empréstimo e salvou sua fazenda.");
+
+  } else if (cenaAtual === 14) {
+    faseComContagem("Você precisa contratar trabalhadores.", "A: Pagar um salário justo", "B: Explorar os trabalhadores", escolha5);
+
+  } else if (cenaAtual === 15) {
+    mostrarResultadoComAcorreta(escolha5, "Eles trabalharam muito. A fazenda prosperou.", "Eles se revoltaram e colocaram fogo na fazenda.");
+
+  } else if (cenaAtual === 17) {
+    faseComContagem("Você tem muito dinheiro.", "A: Pagar o empréstimo", "B: Fugir do país", escolha6);
+
+  } else if (cenaAtual === 18) {
+    mostrarResultadoComAcorreta(escolha6, "Você pagou tudo e se tornou uma potência.", "Você foi presa na fronteira.");
+  }
+}
+
+function faseComContagem(titulo, altA, altB, escolhaVar) {
+  let tempoPassado = floor((millis() - tempoInicio) / 1000);
+  tempoRestante = max(15 - tempoPassado, 0); // aqui deixei 15 segundos fixo
+
+  fill("red");
+  textSize(64);
+  text(tempoRestante, width / 2, 60);
+
+  fill(255);
+  textSize(36);
+  text(titulo, width / 2, 150);
+
+  drawOptionBox(altA, width / 2, height / 2 - 40);
+  drawOptionBox(altB, width / 2, height / 2 + 60);
+
+  if (tempoRestante === 0 && escolhaVar === "") {
+    if (cenaAtual === 2) {
+      escolha1 = "tempo";
+      cenaAtual = 3;
+    } else if (cenaAtual === 5) {
+      escolha2 = "tempo";
+      cenaAtual = 6;
+    } else if (cenaAtual === 8) {
+      escolha3 = "tempo";
+      cenaAtual = 9;
+    } else if (cenaAtual === 11) {
+      escolha4 = "tempo";
+      cenaAtual = 12;
+    } else if (cenaAtual === 14) {
+      escolha5 = "tempo";
+      cenaAtual = 15;
+    } else if (cenaAtual === 17) {
+      escolha6 = "tempo";
+      cenaAtual = 18;
+    }
+  }
+}
+
+function mostrarResultado(escolha, textoErrado, textoCerto) {
+  textSize(36);
+  fill(255);
+
+  if (escolha === "tempo") {
+    text("Você perdeu.", width / 2, height / 2 - 30);
+    fill(180);
+    textSize(24);
+    text("Aperte o play para recomeçar.", width / 2, height - 80);
+
+  } else if (escolha === "A") {
+    text(textoErrado, width / 2, height / 2 - 30);
+    fill(180);
+    textSize(24);
+    text("Aperte o play para recomeçar.", width / 2, height - 80);
+
+  } else if (escolha === "B") {
+    text(textoCerto, width / 2, height / 2 - 30);
+    fill(180);
+    textSize(24);
+    text("Pressione espaço para continuar.", width / 2, height - 80);
+  }
+}
+
+function mostrarResultadoComAcorreta(escolha, textoCerto, textoErrado) {
+  textSize(36);
+  fill(255);
+
+  if (escolha === "tempo") {
+    text("Você perdeu.", width / 2, height / 2 - 30);
+    fill(180);
+    textSize(24);
+    text("Aperte o play para recomeçar.", width / 2, height - 80);
+
+  } else if (escolha === "A") {
+    text(textoCerto, width / 2, height / 2 - 30);
+    fill(180);
+    textSize(24);
+    text("Pressione espaço para continuar.", width / 2, height - 80);
+
+  } else if (escolha === "B") {
+    text(textoErrado, width / 2, height / 2 - 30);
+    fill(180);
+    textSize(24);
+    text("Aperte o play para recomeçar.", width / 2, height - 80);
+  }
+}
+
+function drawOptionBox(texto, x, y) {
+  fill(40);
+  stroke(200);
+  strokeWeight(2);
+  rectMode(CENTER);
+  rect(x, y, 600, 60, 12);
+
+  noStroke();
+  fill(255);
+  textSize(26);
+  text(texto, x, y);
+}
+
+function keyPressed() {
+  if (cenaAtual === 0 && key === ' ') {
+    cenaAtual = 1;
+    tempoInicio = millis();
+  }
+
+  if (cenaAtual === 2 && escolha1 === "") {
+    if (key === 'a' || key === 'A') {
+      escolha1 = "A";
+      cenaAtual = 3;
+    } else if (key === 'b' || key === 'B') {
+      escolha1 = "B";
+      cenaAtual = 3;
+    }
+  }
+
+  if (cenaAtual === 3 && escolha1 === "B" && key === ' ') {
+    cenaAtual = 4;
+    tempoInicio = millis();
+  }
+
+  if (cenaAtual === 5 && escolha2 === "") {
+    if (key === 'a' || key === 'A') {
+      escolha2 = "A";
+      cenaAtual = 6;
+    } else if (key === 'b' || key === 'B') {
+      escolha2 = "B";
+      cenaAtual = 6;
+    }
+  }
+
+  if (cenaAtual === 6 && escolha2 === "B" && key === ' ') {
+    cenaAtual = 7;
+    tempoInicio = millis();
+  }
+
+  if (cenaAtual === 8 && escolha3 === "") {
+    if (key === 'a' || key === 'A') {
+      escolha3 = "A";
+      cenaAtual = 9;
+    } else if (key === 'b' || key === 'B') {
+      escolha3 = "B";
+      cenaAtual = 9;
+    }
+  }
+
+  if (cenaAtual === 9 && escolha3 === "A" && key === ' ') {
+    cenaAtual = 10;
+    tempoInicio = millis();
+  }
+
+  if (cenaAtual === 11 && escolha4 === "") {
+    if (key === 'a' || key === 'A') {
+      escolha4 = "A";
+      cenaAtual = 12;
+    } else if (key === 'b' || key === 'B') {
+      escolha4 = "B";
+      cenaAtual = 12;
+    }
+  }
+
+  if (cenaAtual === 12 && escolha4 === "B" && key === ' ') {
+    cenaAtual = 13;
+    tempoInicio = millis();
+  }
+
+  if (cenaAtual === 14 && escolha5 === "") {
+    if (key === 'a' || key === 'A') {
+      escolha5 = "A";
+      cenaAtual = 15;
+    } else if (key === 'b' || key === 'B') {
+      escolha5 = "B";
+      cenaAtual = 15;
+    }
+  }
+
+  if (cenaAtual === 15 && escolha5 === "A" && key === ' ') {
+    cenaAtual = 16;
+    tempoInicio = millis();
+  }
+
+  if (cenaAtual === 17 && escolha6 === "") {
+    if (key === 'a' || key === 'A') {
+      escolha6 = "A";
+      cenaAtual = 18;
+    } else if (key === 'b' || key === 'B') {
+      escolha6 = "B";
+      cenaAtual = 18;
+    }
+  }
+
+  if (cenaAtual === 18 && escolha6 === "A" && key === ' ') {
+    console.log("🎉 FINAL DEFINITIVO ALCANÇADO!!! JOGO 100% COMPLETO!");
+    // Coloque sua tela final aqui 🥳
+  }
+}
