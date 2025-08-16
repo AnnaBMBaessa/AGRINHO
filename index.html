@@ -10,55 +10,63 @@
         box-sizing: border-box;
     }
 
-    /* Corpo do site */
+    /* Corpo do site com fundo cinematográfico */
     body {
         font-family: 'Arial', sans-serif;
         line-height: 1.7;
-        background: linear-gradient(to bottom, #e0f7fa, #ffffff);
-        color: #333;
+        background: linear-gradient(to bottom, #000000, #111111);
+        color: #f0f0f0;
         padding: 20px;
     }
 
-    /* Cabeçalho principal */
+    /* Cabeçalho principal com efeito “trailer” */
     h1 {
-        font-family: 'Verdana', sans-serif;
-        color: #0277bd;
+        font-family: 'Impact', sans-serif;
+        color: #ffcc00;
         text-align: center;
         margin-bottom: 25px;
-        font-size: 3em;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        font-size: 3.5em;
+        text-shadow: 0 0 10px #ffcc00, 0 0 20px #ff6600, 0 0 30px #ff3300;
+        animation: fadeIn 2s ease-in-out;
     }
 
-    /* Subcabeçalhos */
+    /* Subcabeçalhos cinematográficos */
     h2 {
-        color: #d84315;
+        color: #ff4444;
         margin-top: 25px;
         margin-bottom: 15px;
-        font-family: 'Tahoma', sans-serif;
-        border-left: 5px solid #ff7043;
-        padding-left: 10px;
-        background-color: rgba(255, 235, 238, 0.3);
+        font-family: 'Verdana', sans-serif;
+        border-left: 5px solid #ff4444;
+        padding-left: 12px;
+        background-color: rgba(0,0,0,0.6);
         border-radius: 5px;
+        text-shadow: 1px 1px 5px #000;
+        animation: fadeIn 2.5s ease-in-out;
     }
 
-    /* Parágrafos */
+    /* Parágrafos em caixas de destaque */
     p {
         margin-bottom: 20px;
         font-size: 18px;
         text-align: justify;
         line-height: 1.8;
+        background-color: rgba(0,0,0,0.5);
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 15px rgba(255,255,255,0.1);
+        animation: fadeIn 3s ease-in-out;
     }
 
     /* Texto em negrito */
     b {
-        color: #e65100;
+        color: #ffcc00;
     }
 
-    /* Linha horizontal */
+    /* Linha horizontal dramática */
     hr {
         border: 0;
         height: 2px;
-        background: #0277bd;
+        background: #ffcc00;
         margin: 30px 0;
     }
 
@@ -68,32 +76,39 @@
         display: block;
     }
 
-    /* Vídeos do YouTube */
+    /* Vídeos do YouTube com borda de trailer */
     iframe {
         display: block;
         margin: 20px auto;
         max-width: 100%;
         border-radius: 15px;
-        box-shadow: 0px 4px 20px rgba(0,0,0,0.3);
-        transition: transform 0.3s;
+        box-shadow: 0px 0px 20px #ff6600;
+        transition: transform 0.3s, box-shadow 0.3s;
     }
 
     iframe:hover {
-        transform: scale(1.02);
+        transform: scale(1.03);
+        box-shadow: 0px 0px 40px #ffcc00;
     }
 
-    /* Imagens */
+    /* Imagens com efeito dramático */
     img {
         display: block;
         margin: 20px auto;
         max-width: 100%;
         border-radius: 15px;
-        box-shadow: 0px 4px 20px rgba(0,0,0,0.3);
+        box-shadow: 0px 0px 25px #ff6600;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    img:hover {
+        transform: scale(1.05);
+        box-shadow: 0px 0px 40px #ffcc00;
     }
 
     /* Links */
     a {
-        color: #0277bd;
+        color: #ffcc00;
         text-decoration: none;
     }
 
@@ -101,13 +116,19 @@
         text-decoration: underline;
     }
 
-    /* Rodapé visual simples */
+    /* Rodapé simples */
     footer {
         text-align: center;
         margin-top: 50px;
         padding: 15px;
         font-size: 14px;
-        color: #555;
+        color: #aaa;
+    }
+
+    /* Animação fade-in para efeito trailer */
+    @keyframes fadeIn {
+        from {opacity: 0; transform: translateY(20px);}
+        to {opacity: 1; transform: translateY(0);}
     }
 
     /* Responsividade para telas menores */
@@ -117,7 +138,7 @@
         }
 
         h1 {
-            font-size: 2em;
+            font-size: 2.5em;
         }
 
         h2 {
@@ -177,9 +198,5 @@
 <img src="https://static.todamateria.com.br/upload/pl/an/planetaterra-cke.jpg" alt="Planeta Terra" width="600">
 <p>Olhe para a Terra como ela era na sua primeira foto, inteira, coberta por calotas brancas e nuvens densas que funcionavam como escudos naturais, protegendo oceanos, rios, florestas e a própria vida; agora veja as imagens mais recentes, com gelo derretido, nuvens dispersas e sinais claros de desgaste, e perceba que cada mudança visível não é obra do tempo, mas consequência direta do descuido humano, do consumo desenfreado, da poluição constante e da negligência com os ecossistemas; continuamos vivendo como se os recursos fossem infinitos, como se o planeta pudesse aguentar tudo, enquanto a tecnologia, que poderia ser nossa maior aliada, é muitas vezes usada apenas para distração, lazer e conveniência pessoal, e não para reconstruir, monitorar ou restaurar o que já foi destruído; poderíamos ter sistemas que limpam rios e mares, filtram o ar, transformam resíduos em novos recursos, cidades inteligentes que economizam energia, energias limpas substituindo combustíveis fósseis, sensores e satélites que detectam desmatamento e mudanças climáticas em tempo real, softwares que otimizam indústrias e agricultura sustentável que preserva solos e reduz pesticidas, mas seguimos adiando escolhas, ignorando sinais e vivendo como se nada estivesse acontecendo, achando que haverá um replay ou botão de reset, quando na realidade cada ação negligente deixa marcas permanentes; a pergunta que fica é direta e brutal: vamos continuar permitindo que a Terra se desgaste diante dos nossos olhos, que calotas desapareçam, rios sequem, florestas desapareçam e espécies se extinguam, ou vamos assumir nossa responsabilidade, usar a tecnologia com consciência, agir com urgência e finalmente reconstruir, recuperar e proteger, garantindo que o futuro seja de vida, saúde e esperança, e não de destruição irreversível que nenhum filme, nenhuma ficção e nenhuma desculpa serão capazes de consertar?</p>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/lc6W-wKPNnc?si=WrVrBLP_Zl_E1o1R" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
-<footer>
-    &copy; 2025 - Projeto Educativo WALL-E
-</footer>
 </body>
 </html>
